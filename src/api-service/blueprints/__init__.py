@@ -14,8 +14,8 @@ def create_app(config):
     api.register_error_handler(404, handle_http_error)
 
     # Register Blueprints
-    from .api import api as api_blueprint
-    api.register_blueprint(api_blueprint, url_prefix='/')
+    from .userApi import api as user_api_blueprint
+    api.register_blueprint(user_api_blueprint, url_prefix='/user')
 
     logging.info("STARTUP: Ready to rock!!!")
 

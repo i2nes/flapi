@@ -10,7 +10,7 @@ from ..models import User
 """
 curl -X GET http://localhost:8080/user/list
 """
-@api.route('user/list', methods=['GET'])
+@api.route('/list', methods=['GET'])
 def user_list_api():
 
     users_ndb = User().query().fetch()
@@ -27,7 +27,7 @@ def user_list_api():
 """
 curl -X GET http://localhost:8080/user/john.doe@gmail.com/info
 """
-@api.route('user/<user_id>/info', methods=['GET'])
+@api.route('/<user_id>/info', methods=['GET'])
 def user_info_api(user_id):
 
     if isvalidEmail(user_id):
@@ -53,7 +53,7 @@ def user_info_api(user_id):
 """
 curl -X DELETE http://localhost:8080/user/john.doe@gmail.com/delete
 """
-@api.route('user/<user_id>/delete', methods=['DELETE'])
+@api.route('/<user_id>/delete', methods=['DELETE'])
 def user_delete_api(user_id):
 
     if isvalidEmail(user_id):
@@ -84,7 +84,7 @@ curl -X POST http://localhost:8080/user/john.doe@gmail.com/update \
   "last_name": "Fingers"
 }'
 """
-@api.route('user/<user_id>/update', methods=['POST'])
+@api.route('/<user_id>/update', methods=['POST'])
 def user_update_api(user_id):
 
     if isvalidEmail(user_id):
@@ -144,7 +144,7 @@ curl -X POST http://localhost:8080/user/create \
   "last_name": "Doe"
 }'
 """
-@api.route('user/create', methods=['POST'])
+@api.route('/create', methods=['POST'])
 def user_create_api():
 
     try:
