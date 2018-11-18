@@ -130,7 +130,7 @@ def user_update_api(user_id):
             return jsonify(response), 202
             
     else: # Invalid email
-        return handle_http_error(BadRequest)
+        return handle_http_error(NotFound)
 
     return handle_http_error(InternalServerError)
 
