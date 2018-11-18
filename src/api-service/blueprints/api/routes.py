@@ -2,8 +2,8 @@ import logging
 from . import api
 from flask import Flask, jsonify, request
 from werkzeug.http import HTTP_STATUS_CODES
-from werkzeug.exceptions import BadRequest
-from ..helpers import meta, isvalidEmail
+from werkzeug.exceptions import BadRequest, NotFound, InternalServerError, Conflict
+from ..helpers import meta, isvalidEmail, handle_http_error
 from ..models import User
 
 
@@ -42,12 +42,12 @@ def user_info_api(user_id):
             return jsonify(response), 200
 
         else: # user doesn't exist
-            return jsonify(meta(404, HTTP_STATUS_CODES.get(404))), 404
+            return handle_http_error(NotFound)
             
     else: # Invalid email
-        return jsonify(meta(404, HTTP_STATUS_CODES.get(404))), 404
+        return handle_http_error(NotFound)
 
-    return jsonify(meta(500, HTTP_STATUS_CODES.get(500))), 500
+    return handle_http_error(InternalServerError)
 
 
 """
@@ -68,12 +68,12 @@ def user_delete_api(user_id):
             return jsonify(response), 202
 
         else: # user doesn't exist
-            return jsonify(meta(404, HTTP_STATUS_CODES.get(404))), 404
+            return handle_http_error(NotFound)
             
     else: # Invalid email
-        return jsonify(meta(404, HTTP_STATUS_CODES.get(404))), 404
+        return handle_http_error(NotFound)
 
-    return jsonify(meta(500, HTTP_STATUS_CODES.get(500))), 500
+    return handle_http_error(InternalServerError)
 
 
 """
@@ -92,27 +92,27 @@ def user_update_api(user_id):
         user = User.get_by_id(user_id.lower())
 
         if user is None:
-            return jsonify(meta(404, HTTP_STATUS_CODES.get(404))), 404
+            return handle_http_error(NotFound)
 
         try:
             request_body = request.get_json()
 
         except BadRequest as e:
-            return jsonify({'meta': meta(e.code, e.description)}), e.code
+            return handle_http_error(e)
 
         except Exception as e:
             logging.info('Untreated exception: {}'.format(type(e)))
             logging.info('Status code: {}, Message: {}'.format(e.code, e.description))
-            return jsonify({'meta': meta(e.code, e.description)}), e.code
+            return handle_http_error(e)
 
         else:
 
             if request_body is None:
-                return jsonify({'meta': meta(400, "Bad request. Expecting content-type: application/json")}), 400
+                return handle_http_error(BadRequest)
 
             logging.info(request_body)
             if not 'first_name' in request_body.keys() or not 'last_name' in request_body.keys():
-                return jsonify({'meta': meta(400, "Missing or unexpected first_name or last_name value")}), 400
+                return handle_http_error(BadRequest)
 
             if 'first_name' in request_body.keys():
                 user.first_name = str(request_body['first_name']).capitalize()
@@ -130,9 +130,9 @@ def user_update_api(user_id):
             return jsonify(response), 202
             
     else: # Invalid email
-        return jsonify(meta(404, HTTP_STATUS_CODES.get(404))), 404
+        return handle_http_error(BadRequest)
 
-    return jsonify(meta(500, HTTP_STATUS_CODES.get(500))), 500
+    return handle_http_error(InternalServerError)
 
 
 """
@@ -151,24 +151,24 @@ def user_create_api():
         request_body = request.get_json()
 
     except BadRequest as e:
-        return jsonify({'meta': meta(e.code, e.description)}), e.code
+        return handle_http_error(e)
 
     except Exception as e:
         logging.info('Untreated exception: {}'.format(type(e)))
         logging.info('Status code: {}, Message: {}'.format(e.code, e.description))
-        return jsonify({'meta': meta(e.code, e.description)}), e.code
+        return handle_http_error(e)
 
     else:
         if not 'email' in request_body.keys() or not isvalidEmail(request_body["email"]):
-            return jsonify({'meta': meta(400, "Missing or unexpected email value")}), 400
+            return handle_http_error(BadRequest)
 
         if not 'first_name' in request_body.keys() or not 'last_name' in request_body.keys():
-            return jsonify({'meta': meta(400, "Missing or unexpected first_name or last_name value")}), 400
+            return handle_http_error(BadRequest)
 
         new_user = User.get_by_id(str(request_body['email'].lower()))
 
         if new_user is not None:
-            return jsonify({'meta': meta(409, "User already exists")}), 409
+            return handle_http_error(Conflict)
 
         new_user = User(id=str(request_body["email"]).lower())
         new_user.first_name = str(request_body["first_name"]).capitalize()
