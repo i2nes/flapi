@@ -13,6 +13,25 @@ class User(ndb.Model):
     created = ndb.DateTimeProperty(auto_now_add=True)
     updated = ndb.DateTimeProperty(auto_now=True)
 
+
+    def email(self):
+        return self.key.id()
+
+    def list_content(self):
+
+        list_dict = {
+            'email': self.key.id(),
+            'links': [
+                {
+                    'rel': 'info',
+                    'method': 'get',
+                    'url': '{}/user/{}/info'.format(hostname, self.key.id()),
+                },
+            ],
+        }
+
+        return list_dict
+
     def content(self):
 
         content = {
@@ -24,19 +43,19 @@ class User(ndb.Model):
             'updated': self.updated,
             'links': [
                 {
-                    'rel': 'self',
+                    'rel': 'info',
                     'method': 'get',
-                    'url': '{}/user/{}'.format(hostname, self.key.id()),
+                    'url': '{}/user/{}/info'.format(hostname, self.key.id()),
                 },
                 {
                     'rel': 'delete',
                     'method': 'delete',
-                    'url': '{}/user/{}'.format(hostname, self.key.id()),
+                    'url': '{}/user/{}/delete'.format(hostname, self.key.id()),
                 },
                 {
                     'rel': 'update',
                     'method': 'post',
-                    'url': '{}/user/{}'.format(hostname, self.key.id()),
+                    'url': '{}/user/{}/update'.format(hostname, self.key.id()),
                     'parameters': {
                         'first_name': 'string',
                         'last_name': 'string',
