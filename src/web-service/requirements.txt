@@ -1,0 +1,10 @@
+# Run 'pip install -r requirements.txt -t lib/' to install requirements
+click==6.7
+Flask==0.12.4
+itsdangerous==0.24
+Jinja2==2.10
+MarkupSafe==1.0
+Werkzeug==0.14.1
+wheel==0.24.0
+Flask-WTF==0.13.1
+Flask-Login==0.4.1
