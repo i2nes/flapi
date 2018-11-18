@@ -6,6 +6,7 @@
 runtime: python27
 api_version: 1
 threadsafe: yes
+service: api
 
 # Handlers define how to route requests to your application.
 handlers:
